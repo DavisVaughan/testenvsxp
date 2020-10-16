@@ -26,9 +26,15 @@ bench::mark(
 #> # A tibble: 3 x 6
 #>   expression              min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>         <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 custom$A1             161ns    221ns  3856408.        0B    116. 
-#> 2 base_hashed$A1        178ns    221ns  3933458.        0B    157. 
-#> 3 base_not_hashed$A1   2.19µs   2.35µs   378758.        0B     11.4
+#> 1 custom$A1             163ns    204ns  4157550.        0B    125. 
+#> 2 base_hashed$A1        160ns    199ns  4371682.        0B    175. 
+#> 3 base_not_hashed$A1   2.44µs   2.63µs   347727.        0B     10.4
+
+# proof that `child` has `custom` as a parent env
+custom$x <- 1
+child <- new_hashed_environment(parent = custom)
+eval(quote(x), child)
+#> [1] 1
 
 # generate `times` environments at the C level
 bench::mark(
@@ -40,8 +46,8 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression      min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 base         93.5ms  105.7ms      9.10    26.7MB     12.8
-#> 2 custom       18.4ms   23.8ms     25.8     26.7MB     12.6
+#> 1 base         76.3ms     92ms      10.5    26.7MB     14.8
+#> 2 custom       16.6ms   21.5ms      29.8    26.7MB     14.6
 
 # with a very small size (when we just need a small child env)
 bench::mark(
@@ -53,6 +59,6 @@ bench::mark(
 #> # A tibble: 2 x 6
 #>   expression      min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 base        49.71ms  68.25ms      14.5        0B     16.8
-#> 2 custom       3.85ms   4.25ms     217.         0B     31.4
+#> 1 base         50.7ms  63.69ms      15.6        0B     18.2
+#> 2 custom        3.7ms   4.13ms     223.         0B     32.4
 ```

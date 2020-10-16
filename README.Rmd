@@ -36,6 +36,11 @@ bench::mark(
   iterations = 100000
 )
 
+# proof that `child` has `custom` as a parent env
+custom$x <- 1
+child <- new_hashed_environment(parent = custom)
+eval(quote(x), child)
+
 # generate `times` environments at the C level
 bench::mark(
   base = test_many_envs(times = 1e5L, base = TRUE, size = 29L), 
