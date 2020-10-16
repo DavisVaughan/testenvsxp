@@ -1,0 +1,53 @@
+---
+output: github_document
+---
+
+<!-- README.md is generated from README.Rmd. Please edit that file -->
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+# testenvsxp
+
+```{r}
+library(testenvsxp)
+
+custom <- new_hashed_environment()
+base_hashed <- new.env(hash = TRUE)
+base_not_hashed <- new.env(hash = FALSE)
+
+pairs <- setNames(as.list(1:1000), paste0("A", 1:1000))
+
+rlang::env_bind(custom, !!!pairs)
+rlang::env_bind(base_hashed, !!!pairs)
+rlang::env_bind(base_not_hashed, !!!pairs)
+
+# proof that we have a hashed env
+bench::mark(
+  custom$A1,
+  base_hashed$A1,
+  base_not_hashed$A1,
+  iterations = 100000
+)
+
+# generate `times` environments at the C level
+bench::mark(
+  base = test_many_envs(times = 1e5L, base = TRUE, size = 29L), 
+  custom = test_many_envs(times = 1e5L, base = FALSE, size = 29L), 
+  iterations = 200
+)
+
+# with a very small size (when we just need a small child env)
+bench::mark(
+  base = test_many_envs(times = 1e5L, base = TRUE, size = 3L), 
+  custom = test_many_envs(times = 1e5L, base = FALSE, size = 3L), 
+  iterations = 200
+)
+```
+
