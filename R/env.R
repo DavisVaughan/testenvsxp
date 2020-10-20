@@ -4,6 +4,6 @@ new_hashed_environment <- function(size = 29L, parent = parent.frame()) {
 }
 
 #' @export
-test_many_envs <- function(times, size = 29L, parent = parent.frame(), base = FALSE) {
-  .Call(export_test_many_envs, times, size, parent, base)
+test_many_envs <- function(times, method, size = 29L, parent = parent.frame()) {
+  .Call(export_test_many_envs, times, method, size, parent)
 }

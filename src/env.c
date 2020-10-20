@@ -51,12 +51,21 @@ SEXP export_new_hashed_environment(SEXP size, SEXP parent) {
 
 // -----------------------------------------------------------------------------
 
-SEXP export_test_many_envs(SEXP times, SEXP size, SEXP parent, SEXP base) {
+// From Defn.h
+SEXP R_NewHashedEnv(SEXP, SEXP);
+
+// -----------------------------------------------------------------------------
+
+SEXP export_test_many_envs(SEXP times, SEXP method, SEXP size, SEXP parent) {
   int c_times = INTEGER(times)[0];
   int c_size = INTEGER(size)[0];
-  bool c_base = LOGICAL(base)[0];
+  const char* c_method = CHAR(STRING_PTR(method)[0]);
 
-  if (c_base) {
+  bool use_callback = !strcmp(c_method, "callback");
+  bool use_internals = !strcmp(c_method, "internals");
+  bool use_custom = !strcmp(c_method, "custom");
+
+  if (use_callback) {
     // Callback to R
     SEXP call = PROTECT(
       Rf_lang4(Rf_install("new.env"), Rf_ScalarLogical(true), parent, size)
@@ -68,11 +77,16 @@ SEXP export_test_many_envs(SEXP times, SEXP size, SEXP parent, SEXP base) {
     }
 
     UNPROTECT(1);
-    return R_NilValue;
-  }
-
-  for (int i = 0; i < c_times; ++i) {
-    new_hashed_environment(c_size, parent);
+  } else if (use_internals) {
+    for (int i = 0; i < c_times; ++i) {
+      R_NewHashedEnv(parent, size);
+    }
+  } else if (use_custom) {
+    for (int i = 0; i < c_times; ++i) {
+      new_hashed_environment(c_size, parent);
+    }
+  } else {
+    Rf_error("bad method");
   }
 
   return R_NilValue;

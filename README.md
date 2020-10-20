@@ -26,9 +26,9 @@ bench::mark(
 #> # A tibble: 3 x 6
 #>   expression              min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr>         <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 custom$A1             163ns    204ns  4157550.        0B    125. 
-#> 2 base_hashed$A1        160ns    199ns  4371682.        0B    175. 
-#> 3 base_not_hashed$A1   2.44µs   2.63µs   347727.        0B     10.4
+#> 1 custom$A1             166ns    229ns  3945783.        0B   118.  
+#> 2 base_hashed$A1        160ns    206ns  4235873.        0B   169.  
+#> 3 base_not_hashed$A1   2.29µs   2.51µs   330334.        0B     9.91
 
 # proof that `child` has `custom` as a parent env
 custom$x <- 1
@@ -38,27 +38,31 @@ eval(quote(x), child)
 
 # generate `times` environments at the C level
 bench::mark(
-  base = test_many_envs(times = 1e5L, base = TRUE, size = 29L), 
-  custom = test_many_envs(times = 1e5L, base = FALSE, size = 29L), 
+  callback = test_many_envs(times = 1e5L, method = "callback", size = 29L), 
+  custom = test_many_envs(times = 1e5L, method = "custom", size = 29L), 
+  internals = test_many_envs(times = 1e5L, method = "internals", size = 29L), 
   iterations = 200
 )
 #> Warning: Some expressions had a GC in every iteration; so filtering is disabled.
-#> # A tibble: 2 x 6
+#> # A tibble: 3 x 6
 #>   expression      min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 base         76.3ms     92ms      10.5    26.7MB     14.8
-#> 2 custom       16.6ms   21.5ms      29.8    26.7MB     14.6
+#> 1 callback     79.3ms   97.1ms      10.1    26.7MB     16.8
+#> 2 custom       14.3ms   18.9ms      32.0    26.7MB     10.5
+#> 3 internals    14.2ms     19ms      31.9    26.7MB     10.4
 
 # with a very small size (when we just need a small child env)
 bench::mark(
-  base = test_many_envs(times = 1e5L, base = TRUE, size = 3L), 
-  custom = test_many_envs(times = 1e5L, base = FALSE, size = 3L), 
+  callback = test_many_envs(times = 1e5L, method = "callback", size = 3L), 
+  custom = test_many_envs(times = 1e5L, method = "custom", size = 3L), 
+  internals = test_many_envs(times = 1e5L, method = "internals", size = 3L), 
   iterations = 200
 )
 #> Warning: Some expressions had a GC in every iteration; so filtering is disabled.
-#> # A tibble: 2 x 6
+#> # A tibble: 3 x 6
 #>   expression      min   median `itr/sec` mem_alloc `gc/sec`
 #>   <bch:expr> <bch:tm> <bch:tm>     <dbl> <bch:byt>    <dbl>
-#> 1 base         50.7ms  63.69ms      15.6        0B     18.2
-#> 2 custom        3.7ms   4.13ms     223.         0B     32.4
+#> 1 callback    61.17ms  67.94ms      14.4        0B     16.6
+#> 2 custom       3.89ms   4.26ms     220.         0B     30.8
+#> 3 internals    3.42ms    3.9ms     224.         0B     31.4
 ```

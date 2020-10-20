@@ -43,15 +43,17 @@ eval(quote(x), child)
 
 # generate `times` environments at the C level
 bench::mark(
-  base = test_many_envs(times = 1e5L, base = TRUE, size = 29L), 
-  custom = test_many_envs(times = 1e5L, base = FALSE, size = 29L), 
+  callback = test_many_envs(times = 1e5L, method = "callback", size = 29L), 
+  custom = test_many_envs(times = 1e5L, method = "custom", size = 29L), 
+  internals = test_many_envs(times = 1e5L, method = "internals", size = 29L), 
   iterations = 200
 )
 
 # with a very small size (when we just need a small child env)
 bench::mark(
-  base = test_many_envs(times = 1e5L, base = TRUE, size = 3L), 
-  custom = test_many_envs(times = 1e5L, base = FALSE, size = 3L), 
+  callback = test_many_envs(times = 1e5L, method = "callback", size = 3L), 
+  custom = test_many_envs(times = 1e5L, method = "custom", size = 3L), 
+  internals = test_many_envs(times = 1e5L, method = "internals", size = 3L), 
   iterations = 200
 )
 ```
